@@ -1,0 +1,43 @@
+Subiect 2
+Examen 33
+---Popa Andrei 131
+
+---1
+select  distinct h.denumire, f.denumire
+from hotel h
+join facilitati_Hotel a on a.id_hotel = h.id
+join Facilitate f on f.id = a.id_facilitate
+join camera cam on cam.id_hotel = h.id
+join cazare cz on cam.id = cz.id_camera
+join tarif_camera tc on tc.id_camera = cz.id_camera
+join turist_cazare tuc on tuc.id_cazare = cz.id
+join turist t on t.id = tuc.id_turist 
+where extract(Year from tc.data_start) = 2018 or  
+extract(Year from tc.data_end) = 2018
+
+---2
+with nr_facilitati as(
+            Select id, count(id_facilitate) as k_facilitati
+            from hotel,facilitati_hotel
+            where id = id_hotel  
+            group by id
+            )
+select h.id || h.denumire
+from hotel h
+join nr_facilitati nrf on nrf.id = h.id
+where k_facilitati >=2
+
+
+---3
+with maxim as(
+            Select h2.id as hott,max(cz.nr_zile) as maximm
+            from hotel h2 ,camera c2, cazare cz
+            where h2.id = c2.id_hotel  and c2.id = cz.id_camera
+            group by h2.id
+            )
+            
+select h.denumire,fac.id_facilitate,f.denumire,m.maximm
+from maxim m
+join hotel h on h.id = m.hott
+left join facilitati_hotel fac on m.hott = fac.id_hotel
+left join facilitate f on f.id = fac.id_facilitate

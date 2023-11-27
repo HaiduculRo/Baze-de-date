@@ -1,0 +1,358 @@
+CREATE TABLE Consumabile(
+    idConsumabile integer NOT NULL,
+    NUME VARCHAR2(255) NOT NULL ,
+    PRET NUMBER(20) NOT NULL ,
+    PRIMARY KEY (idConsumabile)
+);
+
+CREATE table tari(
+    idTari number(3),
+    Nume varchar2(100) NOT NULL ,
+    primary key(idTari),
+    constraint NoBulgaria check (Nume != 'Bulgaria')
+)
+
+Alter TABLE  TARI
+ADD constraint UNIQUE_NUME UNIQUE(NUME);
+
+insert into tari(idTari, Nume) values  (2, 'Spania');
+insert into tari(idTari, Nume) values  (1, 'Romania');
+insert into tari(idTari, Nume) values  (3, 'Germania');
+insert into tari(idTari, Nume) values  (2, 'Suedia');
+insert into tari(idTari, Nume) values  (5, 'Ungaria');
+insert into tari(idTari, Nume) values  (6, 'Franta');
+insert into tari(idTari, Nume) values  (7, 'Italia');
+insert into tari(idTari, Nume) values  (8, 'USA');
+insert into tari(idTari, Nume) values  (9, 'Cehia');
+insert into tari(idTari, Nume) values  (10, 'Japonia');
+
+SELECT * FROM TARI
+
+CREATE table Locatie(
+    idLocatie number(3),
+    Nume varchar2(100) Unique NOT NULL ,
+     primary key(idlocatie)
+);
+
+commit
+
+Create table Departamente
+(
+    idDepartament number(2),
+    Nume          varchar2(100) Unique Null,
+    idLocatie     number(3),
+    PRIMARY KEY (idDepartament),
+    constraint FK_LocatieDepartament FOREIGN KEY (idLocatie)
+        references Locatie (idLocatie)
+);
+
+insert into Departamente(idDepartament, Nume, idLocatie) values  (1, 'Consiliu Executiv',1);
+insert into Departamente(idDepartament, Nume, idLocatie) values  (7, 'Dealer',1);
+insert into Departamente(idDepartament, Nume, idLocatie) values  (2, 'Marketing',1);
+insert into Departamente(idDepartament, Nume, idLocatie) values  (3, 'HR',1);
+insert into Departamente(idDepartament, Nume, idLocatie) values  (4, 'Modificari-Auto',2);
+insert into Departamente(idDepartament, Nume, idLocatie) values  (5, 'Contabilitate',2);
+insert into Departamente(idDepartament, Nume, idLocatie) values  (6, 'Inventar',2);
+
+select * from Departamente
+
+insert into Consumabile(idConsumabile, NUME, PRET)
+values (1, 'Spoiler', 2500);
+insert into Consumabile(idConsumabile, NUME, PRET)
+values (2, 'Scaun de Curse', 1400);
+insert into Consumabile(idConsumabile, NUME, PRET)
+values (3, 'Jante Race', 1000);
+insert into Consumabile(idConsumabile, NUME, PRET)
+values (4, 'Jante Sport', 750);
+insert into Consumabile(idConsumabile, NUME, PRET)
+values (5, 'Evacuare', 500);
+insert into Consumabile(idConsumabile, NUME, PRET)
+values (6, 'Suspensie', 500);
+insert into Consumabile(idConsumabile, NUME, PRET)
+values (7, 'Anvelope Sport', 500);
+insert into Consumabile(idConsumabile, NUME, PRET)
+values (8, 'Bujie', 500);
+insert into Consumabile(idConsumabile, NUME, PRET)
+values (9, 'Placute de Frana', 1400);
+insert into Consumabile(idConsumabile, NUME, PRET)
+values (10, 'Capota Aerodinamica', 1600);
+
+create table Angajat(
+idAngajat number(5),
+Nume varchar2(200) NOT NULL,
+Prenume varchar2(200) NOT NULL,
+idDepartament number(2),
+Salariu number(7),
+leader varchar(2) DEFAULT 'Da' CHECK (leader IN ('Da', 'Nu')),
+PRIMARY KEY (idAngajat),
+constraint FK_AngajatDepartament FOREIGN KEY (idDepartament)
+        references Departamente(idDepartament)
+);
+---reparam greseala facuta anterior si vrem ca leader sa fie default 'Nu'
+Alter table Angajat MODIFY
+    (leader varchar2(2) DEFAULT 'Nu' check ( leader in ('Da', 'Nu') ));
+    update Angajat set leader = 'Nu' where leader = 'Da';
+
+create table Tunning(
+    idTunning number(2),
+    Nume varchar2(100) Unique,
+    idAngajat number(5) default NULL,
+    idConsumabile number(5) not null ,
+    Pret number(6) not null ,
+    PRIMARY KEY (idTunning),
+    constraint FK_ConsumabilaTunning FOREIGN KEY (idConsumabile)
+        references Consumabile(idConsumabile),
+    constraint FK_AngajatTunning FOREIGN KEY (idAngajat)
+        references ANGAJAT(IDANGAJAT)
+);
+
+create table Masina(
+    idMasina number(5) NOT NULL ,
+    Brand varchar2(100) NOT NULL ,
+    Model varchar2(100) not null ,
+    idTara number(3) not null ,
+    Culoare varchar2(50) not null ,
+    An number(4) not null ,
+    Pret number(10) not null ,
+    PRIMARY KEY (idMasina),
+    constraint FK_TaraMasina FOREIGN KEY (idTara)
+        references TARI(idTari)
+);
+
+
+Alter TABLE  Masina
+ADD CONSTRAINT AnMasina check (
+        An between 2000 and 2023
+    );
+
+create table MasinaElectrica(
+    idMasina number(5) ,
+    BaterieKW NUMBER(4) NOT NULL ,
+    PRIMARY KEY (idMasina),
+    constraint FK_MasinaElectrica FOREIGN KEY (idMasina)
+        references Masina(idMasina)
+);
+
+CREATE TABLE MasinaTraditionala (
+    idMasina NUMBER(5),
+    CapacitateMotor NUMBER(4) NOT NULL,
+    Combustibil VARCHAR2(10) NOT NULL,
+    PRIMARY KEY (idMasina),
+    CONSTRAINT FK_MasinaTraditionala FOREIGN KEY (idMasina)
+        REFERENCES Masina (idMasina),
+    CONSTRAINT COMBUSTIBILFOSIL CHECK (Combustibil IN ('Motorina', 'Benzina'))
+);
+
+
+
+
+---inserare automata
+    create sequence Incrementare
+    START WITH 3000
+    increment by 1
+    nocycle
+    nocache
+
+    Alter TABLE Masina
+    ADD CaiPutere NUMBER(4)
+
+insert into Masina(idMasina, Brand, Model, idTara, Culoare, An, Pret) VALUES
+(INCREMENTARE.nextval, 'Dacia', 'Logan', 1, 'Alb', 2022, 10000);
+insert into Masina(idMasina, Brand, Model, idTara, Culoare, An, Pret) VALUES
+(INCREMENTARE.nextval, 'BMW', 'Seria 5', 3, 'Negru', 2020, 31000);
+insert into Masina(idMasina, Brand, Model, idTara, Culoare, An, Pret) VALUES
+(INCREMENTARE.nextval, 'BMW', 'Seria 7', 3, 'Gri', 2019, 27000);
+insert into Masina(idMasina, Brand, Model, idTara, Culoare, An, Pret) VALUES
+(INCREMENTARE.nextval, 'BMW', 'X6', 3, 'Negru', 2019, 40000);
+insert into Masina(idMasina, Brand, Model, idTara, Culoare, An, Pret) VALUES
+(INCREMENTARE.nextval, 'AUDI', 'A6', 3, 'Gri', 2017, 19000);
+insert into Masina(idMasina, Brand, Model, idTara, Culoare, An, Pret) VALUES
+(INCREMENTARE.nextval, 'Volvo', 'XC60', 2, 'Albastru', 2018, 21550);
+insert into Masina(idMasina, Brand, Model, idTara, Culoare, An, Pret) VALUES
+(INCREMENTARE.nextval, 'Volvo', 'V90', 3, 'Negru', 2021, 32000);
+insert into Masina(idMasina, Brand, Model, idTara, Culoare, An, Pret) VALUES
+(INCREMENTARE.nextval, 'Ford', 'Mustang', 8, 'Rosu', 2023, 45000);
+insert into Masina(idMasina, Brand, Model, idTara, Culoare, An, Pret) VALUES
+(INCREMENTARE.nextval, 'Ferrari', 'Roma', 7, 'Rosu', 2023, 242500);
+insert into Masina(idMasina, Brand, Model, idTara, Culoare, An, Pret) VALUES
+(INCREMENTARE.nextval, 'Tesla', 'Model 3', 7, 'Alb', 2021, 25500);
+insert into Masina(idMasina, Brand, Model, idTara, Culoare, An, Pret) VALUES
+(INCREMENTARE.nextval, 'Renault', 'Megane E', 6, 'Alb', 2021, 15500);
+INSERT INTO MASINA (IDMASINA, BRAND, MODEL, IDTARA, CULOARE, AN, PRET, CAIPUTERE) VALUES (3017, 'Mecedes', 'GLE', 3, 'Negru', 2022, 101000, 390);
+INSERT INTO MASINA (IDMASINA, BRAND, MODEL, IDTARA, CULOARE, AN, PRET, CAIPUTERE) VALUES (3018, 'Mercedes', 'S Class', 3, 'Negru', 2022, 125000, 340);
+INSERT INTO MASINA (IDMASINA, BRAND, MODEL, IDTARA, CULOARE, AN, PRET, CAIPUTERE) VALUES (3019, 'Maseratti', 'Levante', 7, 'Rosu', 2021, 45000, 337);
+INSERT INTO MASINA (IDMASINA, BRAND, MODEL, IDTARA, CULOARE, AN, PRET, CAIPUTERE) VALUES (3020, 'Citroen', 'C5', 6, 'Rosu', 2018, 11000, 85);
+INSERT INTO MASINA (IDMASINA, BRAND, MODEL, IDTARA, CULOARE, AN, PRET, CAIPUTERE) VALUES (3021, 'Skoda', 'Octavia', 9, 'Verde', 2017, 9800, 101);
+
+
+create table Cumparator(
+    idCumparator number(5) NOT NULL ,
+    Nume varchar2(100) NOT NULL ,
+    Prenume varchar2(100) not null ,
+    Premium varchar2(100) DEFAULT 'Da' CHECK (Premium IN ('Da', 'Nu')),
+    Tara varchar2(100) not null ,
+    PRIMARY KEY (idCumparator)
+);
+
+Create table MasiniTunate(
+    idMasina number(10) NOT NULL,
+    idTunning number(10) NOT NULL,
+    primary key (idMasina,idTunning),
+    constraint FK_MasinaTunning FOREIGN KEY (idMasina)
+        references MASINATRADITIONALA(idMasina),
+    constraint FK_TunningMasina FOREIGN KEY (idTunning)
+        references Tunning(idTunning)
+);
+
+insert into CUMPARATOR(idCumparator, Nume, Prenume, Premium, Tara) VALUES (1, 'Viteazu', 'Mihai', 'Nu', 'Romania');
+insert into CUMPARATOR(idCumparator, Nume, Prenume, Premium, Tara) VALUES (2, 'Tiriac', 'Ion', 'Da', 'Romania');
+insert into CUMPARATOR(idCumparator, Nume, Prenume, Premium, Tara) VALUES (3, 'Muller', 'Straus', 'Nu', 'Germania');
+insert into CUMPARATOR(idCumparator, Nume, Prenume, Premium, Tara) VALUES (4, 'Sorosy', 'Orban', 'Nu', 'Ungaria');
+insert into CUMPARATOR(idCumparator, Nume, Prenume, Premium, Tara) VALUES (5, 'Gigi', 'Becali', 'Da', 'Romania');
+insert into CUMPARATOR(idCumparator, Nume, Prenume, Premium, Tara) VALUES (6, 'Jasmine', 'Ford', 'Nu', 'USA');
+insert into CUMPARATOR(idCumparator, Nume, Prenume, Premium, Tara) VALUES (7, 'Xavier', 'Catalon', 'Da', 'Spania');
+insert into CUMPARATOR(idCumparator, Nume, Prenume, Premium, Tara) VALUES (8, 'Parmigiano', 'Charles', 'Da', 'Italia');
+insert into CUMPARATOR(idCumparator, Nume, Prenume, Premium, Tara) VALUES (9, 'Anton', 'Mitrovici', 'Da', 'Serbia');
+insert into CUMPARATOR(idCumparator, Nume, Prenume, Premium, Tara) VALUES (10, 'Ioana', 'Petrea', 'Nu', 'Romania');
+insert into CUMPARATOR(idCumparator, Nume, Prenume, Premium, Tara) VALUES (11, 'Maria', 'Dobrin', 'Nu', 'Romania');
+insert into CUMPARATOR(idCumparator, Nume, Prenume, Premium, Tara) VALUES (12, 'Clara', 'Vasquez', 'Da', 'Spania');
+insert into CUMPARATOR(idCumparator, Nume, Prenume, Premium, Tara) VALUES (13, 'Fried', 'Koln', 'Nu', 'Germania');
+
+commit
+
+Create table Vanzare
+(   idCumparator number(5) Not NULL,
+    idAngajat number(5) NOT NULL,
+    idMasina number(5) NOT NULL UNIQUE,
+    PRIMARY KEY (idCumparator,idAngajat,idMasina),
+    constraint FK_VanzareMasina FOREIGN KEY (idMasina)
+        references Masina(idMasina),
+    constraint FK_VanzareAngajat FOREIGN KEY (idAngajat)
+        references Angajat(idAngajat),
+    constraint FK_CumparatorVanzare FOREIGN KEY (idCumparator)
+        references CUMPARATOR(idCumparator)
+);
+        Alter TABLE Vanzare
+    add DataVanzare Date;
+
+
+
+
+---incrementare vanzare
+    create sequence IncerementVanzari
+    start with 7000
+    increment by 1
+    nocycle
+    nocache
+
+    insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (2, 'Lautaru', 'Vasile', 2, 1000);
+    insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (3, 'Guta', 'Nicolae', 4, 900);
+    insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (4, 'Moraru', 'Dan', 7, 1500);
+    insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (5, 'Anton', 'Tudor', 3, 920);
+    insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (6, 'Padurariu', 'Sabin', 4, 1200);
+    insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (7, 'Luigi', 'Mitica', 4, 1050);
+    insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (8, 'Petrescu', 'Iulia', 5, 1655);
+    insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (9, 'Popescu', 'Delia', 7, 1780);
+    insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (10, 'Oprea', 'Constantin', 7, 1500);
+    insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (11, 'Sandu', 'Codrin', 7, 1340);
+    Insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (12,'Mihail','Simionescu',7,1450);
+    Insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (13,'George','Moisila',7,1470);
+    Insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (14,'Violeta','Suru',5,2170);
+    Insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (15,'George','Lazar',4,1370);
+    Insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (16,'Mihaela','Hangu',2,1310);
+    Insert into Angajat(idAngajat, Nume, Prenume, idDepartament, Salariu) VALUES (17,'Ionut','Sima',3,1170);
+
+
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3000,'Benzina',1780);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3001,'Benzina',2900);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3002,'Benzina',3900);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3003,'Motorina',2910);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3004,'Motorina',1980);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3008,'Benzina',4900);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3012,'Motorina',1190);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3013,'Motorina',1210);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3015,'Benzina',3450);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3016,'Benzina',3980);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3017,'Benzina',3980);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3019,'Motorina',2201);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3020,'Motorina',1390);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3021,'Benzina',1980);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3022,'Benzina',2980);
+    Insert into MasinaTraditionala(IDMASINA,COMBUSTIBIL,CAPACITATEMOTOR) values (3023,'Benzina',3470);
+
+---masini electrice
+    Insert into MasinaElectrica(idMasina, BaterieKW)
+        VALUES(3005,150);
+    Insert into MasinaElectrica(idMasina, BaterieKW)
+        VALUES(3006,180);
+    Insert into MasinaElectrica(idMasina, BaterieKW)
+        VALUES(3005,210);
+    Insert into MasinaElectrica(idMasina, BaterieKW)
+        VALUES(3005,95);
+    Insert into MasinaElectrica(idMasina, BaterieKW)
+        VALUES(3005,186);
+    Insert into MasinaElectrica(idMasina, BaterieKW)
+        VALUES(3005,111);
+    Insert into MasinaElectrica(idMasina, BaterieKW)
+        VALUES(3005,145);
+
+---incrementare vanzare
+    create sequence IncrementareTunning
+    start with 1
+    increment by 1
+    nocycle
+    nocache
+
+
+commit
+
+    insert into MasiniTunate(idMasina, idTunning) VALUES (3000,1);
+    insert into MasiniTunate(idMasina, idTunning) VALUES (3001,1);
+    insert into MasiniTunate(idMasina, idTunning) VALUES (3008,3);
+    insert into MasiniTunate(idMasina, idTunning) VALUES (3008,4);
+    insert into MasiniTunate( idMasina, idTunning) VALUES (3016,3);
+    insert into MasiniTunate(idMasina, idTunning) VALUES (3008,2);
+    insert into MasiniTunate(idMasina, idTunning) VALUES (3022,4);
+    insert into MasiniTunate( idMasina, idTunning) VALUES (3017,1);
+    insert into MasiniTunate(idMasina, idTunning) VALUES (3017,2);
+    insert into MasiniTunate(  idMasina, idTunning) VALUES (3013,4);
+    insert into MasiniTunate(  idMasina, idTunning) VALUES (3004,2);
+    insert into MasiniTunate(  idMasina, idTunning) VALUES (3004,3);
+    insert into MasiniTunate(  idMasina, idTunning) VALUES (3004,4);
+    insert into MasiniTunate(  idMasina, idTunning) VALUES (3021,4);
+    insert into MasiniTunate(  idMasina, idTunning) VALUES (3008,1);
+    insert into MasiniTunate(  idMasina, idTunning) VALUES (3019,3);
+
+commit
+
+
+    insert into Locatie(idLocatie, Nume) VALUES (1, 'Pipera');
+    insert into Locatie(idLocatie, Nume) VALUES (2, 'Militari');
+    insert into Locatie(idLocatie, Nume) VALUES (3, 'Victoriei');
+    insert into Locatie(idLocatie, Nume) VALUES (4, 'Otopeni');
+    insert into Locatie(idLocatie, Nume) VALUES (5, 'Baneasa');
+
+
+
+    insert into Vanzare(idCumparator, idAngajat, idMasina,DataVanzare) VALUES (6, 11, 3000,TO_DATE('05-03-2023', 'dd-mm-yyyy'));
+    insert into Vanzare(idCumparator, idAngajat, idMasina,DataVanzare) VALUES (1, 4, 3002,TO_DATE('08-02-2020', 'dd-mm-yyyy'));
+    insert into Vanzare(idCumparator, idAngajat, idMasina,DataVanzare) VALUES (3, 4, 3003,TO_DATE('29-03-2021', 'dd-mm-yyyy'));
+    insert into Vanzare(idCumparator, idAngajat, idMasina,DataVanzare) VALUES (2, 11, 3013,TO_DATE('19-06-2022', 'dd-mm-yyyy'));
+    insert into Vanzare(idCumparator, idAngajat, idMasina,DataVanzare) VALUES (7, 10, 3006,TO_DATE('19-05-2023', 'dd-mm-yyyy'));
+    insert into Vanzare(idCumparator, idAngajat, idMasina,DataVanzare) VALUES (8, 10, 3010,TO_DATE('01-01-2023', 'dd-mm-yyyy'));
+    insert into Vanzare(idCumparator, idAngajat, idMasina,DataVanzare) VALUES (1, 11, 3011,TO_DATE('08-02-2023', 'dd-mm-yyyy'));
+    insert into Vanzare(idCumparator, idAngajat, idMasina,DataVanzare) VALUES (5, 12, 3016,TO_DATE('11-10-2022', 'dd-mm-yyyy'));
+    insert into Vanzare(idCumparator, idAngajat, idMasina,DataVanzare) VALUES (5, 13, 3005,TO_DATE('12-12-2022', 'dd-mm-yyyy'));
+    insert into Vanzare(idCumparator, idAngajat, idMasina,DataVanzare) VALUES (3, 4, 3021,TO_DATE('05-03-2023', 'dd-mm-yyyy'));
+    insert into Vanzare(idCumparator, idAngajat, idMasina,DataVanzare) VALUES (6, 11, 3025,TO_DATE('10-07-2023', 'dd-mm-yyyy'));
+    insert into Vanzare(idCumparator, idAngajat, idMasina,DataVanzare) VALUES (9, 11, 3019,TO_DATE('12-01-2023', 'dd-mm-yyyy'));
+    insert into Vanzare(idCumparator, idAngajat, idMasina,DataVanzare) VALUES (2, 11, 3024,TO_DATE('10-04-2023', 'dd-mm-yyyy'));
+
+
+ALTER TABLE Vanzare
+ADD DataVanzare DATE
+
+ALTER TABLE vanzare ADD CONSTRAINT DataVanzare
+CHECK (DATAVANZARE < TO_DATE('01-08-2023', 'dd-mm-yyyy'));
+
+commit
